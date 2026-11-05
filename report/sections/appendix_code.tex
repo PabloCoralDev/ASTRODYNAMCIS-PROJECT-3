@@ -1,0 +1,28 @@
+\section{Python Source Code}
+\label{app:code}
+
+\subsection{Main script --- \texttt{main.py}}
+\lstinputlisting[caption={Tasks 1 to 3: propagation, groundtracks, plots, and hemisphere/crossing-point/apoapsis analysis.}]{../main.py}
+
+\clearpage
+\subsection{Orbital elements --- \texttt{elements.py}}
+\lstinputlisting[caption={Orbital elements to ECI position and velocity: \texttt{elements\_to\_rv}.}]{../elements.py}
+
+\subsection{Incremental Kepler solver --- \texttt{kepler.py}}
+\lstinputlisting[caption={Task 1-1: \texttt{step\_kepler}, Newton's method on Kepler's equation.}]{../kepler.py}
+
+\subsection{Orbit propagation --- \texttt{propagate\_orbit.py}}
+\lstinputlisting[caption={Task 1-2: \texttt{propagate\_orbit}.}]{../propagate_orbit.py}
+
+\subsection{ECI to ECEF matrix --- \texttt{dcmI2E.py}}
+\lstinputlisting[caption={Task 2: \texttt{dcmI2E}.}]{../dcmI2E.py}
+
+\subsection{ECEF position --- \texttt{eci2ecef.py}}
+\lstinputlisting[caption={Task 2: \texttt{eci2ecef}.}]{../eci2ecef.py}
+
+\subsection{Longitude and latitude --- \texttt{ecef2LonLat.py}}
+\lstinputlisting[caption={Task 2: \texttt{ecef2LonLat}.}]{../ecef2LonLat.py}
+
+\clearpage
+\subsection{Plotting --- \texttt{plotting.py}}
+\lstinputlisting[caption={Tasks 1 and 2: \texttt{earthSphere}, \texttt{plotOrbits3D}, and \texttt{mercatorDisplay}.}]{../plotting.py}

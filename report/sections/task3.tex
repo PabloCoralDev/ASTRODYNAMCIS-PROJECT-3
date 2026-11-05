@@ -1,0 +1,91 @@
+\section{Task 3: Hemisphere Dwell, Crossing Point, and Apoapsis Placement}
+\label{sec:task3}
+
+Three results below depend only on $i$, $e$, $T$, and $\omega$ -- not on $\Omega$, since $\Omega$ only shifts the groundtrack in longitude (\cref{sec:task2}). It is convenient to work in the argument of latitude $u = \omega+\nu$, since the geocentric latitude of any point on the orbit is simply
+\begin{equation}
+\sin\phi = \sin i \,\sin u.
+\label{eq:t3-lat}
+\end{equation}
+
+\subsection*{(a) Majority hemisphere and crossing-point dwell time}
+
+\textbf{Hemisphere.} Summing $\Delta t$ over every 5-minute step of Task 1 where $\phi>0$ versus $\phi<0$ gives the fraction of the period spent in each hemisphere (\cref{tab:t3a}). Because the spacecraft moves slowest near apoapsis (by conservation of angular momentum, $r^2\dot\nu = h = $ const, so $\dot\nu$ is smallest where $r$ is largest) and apoapsis sits at $u_a=\omega+180^\circ$, the spacecraft spends the majority of its time in whichever hemisphere apoapsis points toward -- the Southern hemisphere for $\omega=90^\circ$, the Northern hemisphere for $\omega=270^\circ$.
+
+\textbf{Crossing point.} The groundtrack self-intersects where a point at argument of latitude $u_1$ (on the ascending leg, $u_1\in(0^\circ,90^\circ)$) and its latitude mirror $u_2 = 180^\circ-u_1$ (on the descending leg, same $\sin u$ by \cref{eq:t3-lat}) also share the same Earth-relative longitude. Writing the orbital-plane longitude swept from the ascending node with the spherical right-triangle relation $\lambda(u) = \tan^{-1}(\cos i\,\sin u,\,\cos u)$, the crossing point is the root of
+\begin{equation}
+\boxed{g(u_1) = \big[\lambda(u_1) - \Omega_e t(u_1)\big] - \big[\lambda(u_2) - \Omega_e t(u_2)\big] = 0, \qquad u_2 = 180^\circ-u_1,}
+\label{eq:t3-crossing}
+\end{equation}
+where $t(u)$ is the time since periapsis to reach argument of latitude $u$, found directly from Kepler's equation (no root-finding needed, since $\nu\to E\to M=nt$ is explicit). \cref{eq:t3-crossing} is solved with \texttt{scipy.optimize.brentq} after bracketing the root with a coarse scan over $u_1\in(0^\circ,180^\circ)$. The time to return to the crossing point is then $t(u_2)-t(u_1)$ going one way, and $T-\big(t(u_2)-t(u_1)\big)$ going the other (\cref{tab:t3a}).
+
+\begin{table}[H]
+\centering
+\caption{Part (a) results.}
+\label{tab:t3a}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Quantity & $\omega=90^\circ$ & $\omega=270^\circ$ \\
+\midrule
+Majority hemisphere & Southern & Northern \\
+Time in majority hemisphere [\%] & $65.40$ & $65.40$ \\
+Crossing-point latitude [\si{\degree}] & $-42.6834$ & $+42.6834$ \\
+Dwell time, short leg [\si{\hour}] & $8.3100$ & $8.3100$ \\
+Dwell time, long leg [\si{\hour}] & $15.6900$ & $15.6900$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{(b) $\Omega$ placing apoapsis over Australia and South America ($\omega=90^\circ$)}
+
+Since apoapsis is a single fixed point in the orbital plane ($\nu=180^\circ$, reached at $t_a=T/2$ exactly, as $\nu=180^\circ\Rightarrow E=180^\circ\Rightarrow M=180^\circ$), its Earth-relative longitude is a simple, rigid function of $\Omega$:
+\begin{equation}
+\theta_{e,a}(\Omega) = \Omega + \lambda(u_a) - \Omega_e t_a, \qquad u_a = \omega+180^\circ,
+\end{equation}
+so placing apoapsis at a target longitude $\theta_{target}$ just requires inverting this for $\Omega$:
+\begin{equation}
+\boxed{\Omega = \theta_{target} - \lambda(u_a) + \Omega_e t_a \pmod{360^\circ}}.
+\label{eq:t3-omega-apo}
+\end{equation}
+For $\omega=90^\circ$, apoapsis latitude is $\phi_a=-63.4^\circ$ (\cref{eq:t3-lat}), which is in the Southern hemisphere -- the majority-time hemisphere found in part (a), so the condition that the spacecraft be in that hemisphere when over the target is satisfied automatically. Using representative central longitudes ($135^\circ$E for Australia, $60^\circ$W for central/northern South America) in \cref{eq:t3-omega-apo} gives \cref{tab:t3b}.
+
+\begin{table}[H]
+\centering
+\caption{Part (b) results, $\omega=90^\circ$.}
+\label{tab:t3b}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Target & Reference longitude [\si{\degree}] & $\Omega$ [\si{\degree}] \\
+\midrule
+Australia & $135.0$ & $45.4928$ \\
+South America & $-60.0$ & $210.4928$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent The $\Omega=45.49^\circ$ result for Australia is consistent with \cref{fig:t2-gt90}: the $\Omega=45^\circ$ groundtrack already passes almost directly over Australia at its Southern loop.
+
+\subsection*{(c) $\Omega$ placing apoapsis over Russia and North America ($\omega=270^\circ$)}
+
+The same \cref{eq:t3-omega-apo} applies with $u_a=\omega+180^\circ=90^\circ$ for $\omega=270^\circ$, where $\phi_a=+63.4^\circ$ -- the Northern hemisphere, again matching the majority-time hemisphere from part (a). Using reference longitudes of $90^\circ$E (central Siberia, Russia) and $100^\circ$W (central United States/Canada, North America) gives \cref{tab:t3c}.
+
+\begin{table}[H]
+\centering
+\caption{Part (c) results, $\omega=270^\circ$.}
+\label{tab:t3c}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Target & Reference longitude [\si{\degree}] & $\Omega$ [\si{\degree}] \\
+\midrule
+Russia & $90.0$ & $180.4928$ \\
+North America & $-100.0$ & $350.4928$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent Note that neither pair of $\Omega$ values in parts (b) and (c) is restricted to the $[0^\circ,180^\circ]$ sweep used in Tasks 1-2 -- the assignment's Task 1 range was only for visualizing orbit structure, while placing apoapsis over an arbitrary longitude is a free design choice over the full $[0^\circ,360^\circ)$.
+
+\bigskip
+\noindent Full program output, including the orbital elements and every intermediate result above:
+\programoutput{outputs/main.txt}
+
+\FloatBarrier

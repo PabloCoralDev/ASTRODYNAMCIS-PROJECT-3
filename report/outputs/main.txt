@@ -1,0 +1,35 @@
+
+Orbit design parameters (fixed for every case)
+	T	= 24.0000 hr
+	e	= 0.2500
+	i	= 63.4000 deg
+	a	= 42241.0801 km
+	p	= 39601.0126 km
+	rp	= 31680.8101 km
+	ra	= 52801.3501 km
+
+======================================================================
+  Task 3: hemisphere dwell, crossing point, and apoapsis placement
+======================================================================
+
+(w = 90 deg)
+	majority hemisphere	= Southern (65.40% of orbit)
+	crossing point lat	= -42.6834 deg
+	dwell time (short leg)	= 8.3100 hr
+	dwell time (long leg)	= 15.6900 hr
+	apoapsis latitude	= -63.4000 deg  (matches majority hemisphere: Southern)
+
+(w = 270 deg)
+	majority hemisphere	= Northern (65.40% of orbit)
+	crossing point lat	= 42.6834 deg
+	dwell time (short leg)	= 8.3100 hr
+	dwell time (long leg)	= 15.6900 hr
+	apoapsis latitude	= 63.4000 deg  (matches majority hemisphere: Northern)
+
+(w = 90 deg) Omega placing apoapsis over named locations:
+	Australia (~135 deg E)	-> Omega = 45.4928 deg
+	South America (~-60 deg E, Brazil)	-> Omega = 210.4928 deg
+
+(w = 270 deg) Omega placing apoapsis over named locations:
+	Russia (~90 deg E, central Siberia)	-> Omega = 180.4928 deg
+	North America (~-100 deg E)	-> Omega = 350.4928 deg

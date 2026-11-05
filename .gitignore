@@ -1,0 +1,11 @@
+*.pdf
+*.heic
+__pycache__/
+.venv/
+.DS_Store
+report/*.aux
+report/*.log
+report/*.out
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz

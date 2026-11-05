@@ -1,0 +1,88 @@
+\section{Task 1: Apoapsis Dwell Orbit in Inertial Space}
+\label{sec:task1}
+
+USSPACECOM has specified a design with
+\begin{equation}
+T = \SI{24}{\hour}, \qquad e = 0.25, \qquad i = 63.4^\circ, \qquad \omega = \{90^\circ, 270^\circ\}, \qquad 0 \le \Omega \le 180^\circ,
+\end{equation}
+with the spacecraft at periapsis at the epoch $t=t_0=0$. The semi-major axis follows directly from the given period,
+\begin{equation}
+T = 2\pi\sqrt{\frac{a^3}{\mu}} \;\;\Longrightarrow\;\; a = \left(\frac{\mu T^2}{4\pi^2}\right)^{1/3},
+\end{equation}
+after which $p = a(1-e^2)$, $r_p = p/(1+e)$, and $r_a = p/(1-e)$ follow as usual (\cref{tab:t1-design}).
+
+\subsection*{Task 1-1: Incremental Kepler solver}
+
+The assignment forbids both \texttt{ode113} and the Project 2 time-of-flight root-finder, \texttt{rootFinder}, for this task. Instead, the orbit is propagated directly from Kepler's equation, stepping the eccentric anomaly $E$ forward one $\Delta t = \SI{5}{\minute}$ interval at a time. With mean motion $n=2\pi/T$, the mean anomaly advances linearly in time,
+\begin{equation}
+M_j = M_{j-1} + n\,\Delta t,
+\label{eq:t1-mean-anomaly}
+\end{equation}
+and $E_j$ is the root of Kepler's equation at that step,
+\begin{equation}
+f(E) = E - e\sin E - M_j = 0, \qquad f'(E) = 1 - e\cos E,
+\end{equation}
+solved with Newton's method,
+\begin{equation}
+\boxed{E^{(k+1)} = E^{(k)} - \frac{E^{(k)} - e\sin E^{(k)} - M_j}{1 - e\cos E^{(k)}}},
+\qquad E^{(0)} = E_{j-1} + n\,\Delta t.
+\label{eq:t1-newton}
+\end{equation}
+Seeding each step with the previous step's $E$ (rather than re-solving from $E_0$) makes the propagation genuinely incremental, as required, and the seed in \cref{eq:t1-newton} is already close to the root since $M$ only advances by $n\,\Delta t$ each step. The true anomaly follows from
+\begin{equation}
+\nu_j = 2\tan^{-1}\!\left(\sqrt{\frac{1+e}{1-e}}\tan\frac{E_j}{2}\right),
+\end{equation}
+evaluated with \texttt{numpy.arctan2} for the correct quadrant. \texttt{step\_kepler(E\_prev, e, n, dt)} implements \cref{eq:t1-mean-anomaly,eq:t1-newton}, and \texttt{propagate\_orbit} calls it once per 5-minute step over one full period, starting from periapsis ($E_0 = 0$).
+
+\begin{table}[H]
+\centering
+\caption{Fixed orbit design parameters.}
+\label{tab:t1-design}
+\begin{tabular}{@{}lr@{\qquad}lr@{}}
+\toprule
+Quantity & Value & Quantity & Value \\
+\midrule
+$a$ [\si{\kilo\meter}] & $42241.0801$ & $p$ [\si{\kilo\meter}] & $39601.0126$ \\
+$e$ [--] & $0.2500$ & $r_p$ [\si{\kilo\meter}] & $31680.8101$ \\
+$i$ [\si{\degree}] & $63.4000$ & $r_a$ [\si{\kilo\meter}] & $52801.3501$ \\
+$T$ [\si{\hour}] & $24.0000$ & $\Delta t$ [\si{\minute}] & $5$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Task 1-2: Position at every $\Omega$}
+
+For each $(\omega,\Omega)$ pair, the sequence of true anomalies $\{\nu_j\}$ from the incremental solver is rotated into the ECI frame with the usual perifocal-to-inertial 3-1-3 (Z-X-Z) rotation,
+\begin{equation}
+\vect{r}(\nu_j) = \mathbf{R}_z(\Omega)\,\mathbf{R}_x(i)\,\mathbf{R}_z(\omega)\,\vect{r}_{PCI}(\nu_j), \qquad
+\vect{r}_{PCI} = \frac{p}{1+e\cos\nu_j}\begin{bmatrix}\cos\nu_j\\ \sin\nu_j\\ 0\end{bmatrix},
+\end{equation}
+done by \texttt{elements\_to\_rv} (identical in form to Project 2's \texttt{computeRandV}, applied here to a single $\nu$ at a time as each step is produced). The full pipeline is summarized in \cref{fig:t1-flow}.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.95\textwidth}{!}{\input{figures/fig_flow.tex}}
+\caption{Function flow in \texttt{main.py}: incremental Kepler propagation, ECI $\to$ ECEF, groundtrack, and the Task 3 analysis.}
+\label{fig:t1-flow}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.49\textwidth}
+\includegraphics[width=\textwidth]{orbit3d_w90.png}
+\caption{$\omega = 90^\circ$}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.49\textwidth}
+\includegraphics[width=\textwidth]{orbit3d_w270.png}
+\caption{$\omega = 270^\circ$}
+\end{subfigure}
+\caption{Orbit in ECI inertial space for $\Omega = (0,45,90,135,180)^\circ$, one figure per value of $\omega$.}
+\label{fig:t1-orbits}
+\end{figure}
+
+For a fixed $\omega$, changing $\Omega$ rigidly rotates the entire orbit about the Earth's polar axis: every ellipse in \cref{fig:t1-orbits} has the same size, shape, and tilt relative to the equatorial plane, and the five curves differ only by where the line of nodes points. The structure of each orbit relative to the equator (how far north or south it reaches, where periapsis and apoapsis sit) is set entirely by $i$ and $\omega$, not $\Omega$.
+
+The key difference between $\omega=90^\circ$ and $\omega=270^\circ$ is where apoapsis points in latitude. Since the argument of latitude at apoapsis is $u_a = \omega + 180^\circ$, apoapsis sits at $u_a = 270^\circ$ for $\omega=90^\circ$ (the southernmost point of the orbit) and at $u_a = 90^\circ$ for $\omega=270^\circ$ (the northernmost point). The two cases are mirror images of each other across the equatorial plane: the $\omega=90^\circ$ orbit dwells over the Southern hemisphere at apoapsis, while the $\omega=270^\circ$ orbit dwells over the Northern hemisphere at apoapsis -- this is the "apoapsis dwell" behavior USSPACECOM is designing for, and \cref{sec:task3} shows it is not just qualitative: the spacecraft spends the majority of each period on the apoapsis side of its orbit.
+
+\FloatBarrier

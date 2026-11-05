@@ -1,0 +1,36 @@
+\section{Task 2: Groundtrack as a Function of $\Omega$ and $\omega$}
+\label{sec:task2}
+
+Each ECI position from Task 1 is rotated into the Earth-fixed frame (ECEF) by the Earth's rotation since $t_0$,
+\begin{equation}
+\vect{r}_e(t_j) = \mathbf{T}_I^E(t_j)\,\vect{r}(t_j), \qquad
+\mathbf{T}_I^E(t) = \begin{bmatrix}\cos(\Omega_e t) & \sin(\Omega_e t) & 0\\ -\sin(\Omega_e t) & \cos(\Omega_e t) & 0\\ 0 & 0 & 1\end{bmatrix},
+\qquad \Omega_e = \SI{7.2921159e-5}{\radian\per\second},
+\label{eq:t2-dcm}
+\end{equation}
+implemented by \texttt{dcmI2E} and \texttt{eci2ecef}, reused as-is from Project 2 since this is a coordinate transform, not the forbidden time-of-flight solver. The Earth-relative longitude and geocentric latitude then follow directly from \cref{eq:t2-dcm}'s components $(x_e,y_e,z_e)$:
+\begin{equation}
+\boxed{\theta_e = \tan^{-1}(y_e,\,x_e), \qquad \phi = \tan^{-1}\!\left(z_e,\,\sqrt{x_e^2+y_e^2}\right)},
+\label{eq:t2-lonlat}
+\end{equation}
+evaluated with the four-quadrant \texttt{numpy.arctan2}, implemented in \texttt{ecef2LonLat}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{groundtrack_w90.png}
+\caption{Groundtrack, $\omega=90^\circ$, for $\Omega=(0,45,90,135,180)^\circ$.}
+\label{fig:t2-gt90}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{groundtrack_w270.png}
+\caption{Groundtrack, $\omega=270^\circ$, for $\Omega=(0,45,90,135,180)^\circ$.}
+\label{fig:t2-gt270}
+\end{figure}
+
+The most interesting feature of every groundtrack in \cref{fig:t2-gt90,fig:t2-gt270} is the self-intersection: because the orbit never repeats to the same inertial longitude twice per period (the spacecraft's own angular rate and the Earth's rotation rate are unrelated), the only way the track can cross itself is if the \emph{same} point in the orbital plane is revisited with a different Earth-rotation offset having elapsed -- which happens exactly once per period, at the point analyzed in \cref{sec:task3}. Changing $\Omega$ does not change the shape of the track at all; it only slides the whole loop east or west, since $\Omega$ enters \cref{eq:t2-dcm}-\cref{eq:t2-lonlat} only as a longitude offset at $t_0$.
+
+The key difference between $\omega=90^\circ$ and $\omega=270^\circ$ is the same mirror-flip noted in \cref{sec:task1}, now visible directly on the map: for $\omega=90^\circ$ (\cref{fig:t2-gt90}) the narrow, slow-moving loop near apoapsis sits in the Southern hemisphere and the track crosses itself south of the equator; for $\omega=270^\circ$ (\cref{fig:t2-gt270}) the same narrow loop sits in the Northern hemisphere. In both cases the wide, fast-moving part of the track near periapsis stays close to the equator, since $r_p \ll r_a$ keeps the spacecraft moving quickly and at low altitude there.
+
+\FloatBarrier

@@ -1,0 +1,142 @@
+\documentclass[11pt]{article}
+
+% ── Packages ────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{subcaption}
+\captionsetup[figure]{labelfont=it}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{microtype}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = blue!50!black,
+    citecolor  = black,
+    urlcolor   = blue!50!black,
+}
+\usepackage{cleveref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,shapes.geometric,positioning,calc,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ── Code listing style ─────────────────────────────────────────────────────
+\definecolor{codebg}{RGB}{247,247,250}
+\definecolor{codekeyword}{RGB}{0,33,165}
+\definecolor{codecomment}{RGB}{110,110,110}
+\definecolor{codestring}{RGB}{160,30,30}
+
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{codekeyword}\bfseries,
+    commentstyle=\color{codecomment}\itshape,
+    stringstyle=\color{codestring},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=8pt,
+    frame=single,
+    rulecolor=\color{black!20},
+    breaklines=true,
+    breakatwhitespace=false,
+    showstringspaces=false,
+    tabsize=4,
+    captionpos=b,
+    columns=fullflexible,
+    keepspaces=true,
+}
+\lstset{style=pythonstyle}
+
+% ── Program output style (plain monospace, no line numbers) ─────────────────
+\lstdefinestyle{outputstyle}{
+    language={},
+    basicstyle=\ttfamily\scriptsize,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    rulecolor=\color{black!20},
+    numbers=none,
+    columns=fixed,
+    tabsize=8,
+}
+\newcommand{\programoutput}[2][]{\lstinputlisting[style=outputstyle,#1]{#2}}
+
+% ── Colors used in the figures (match the handwritten diagrams) ────────────
+\definecolor{hwpurple}{RGB}{90,45,145}
+\definecolor{hwmagenta}{RGB}{230,0,200}
+\definecolor{hwblue}{RGB}{20,70,190}
+\definecolor{hwred}{RGB}{225,30,30}
+\definecolor{hwgreen}{RGB}{0,130,70}
+
+% ── Vector notation (underbar, matching handwritten convention) ────────────
+\newcommand{\vect}[1]{\underline{#1}}
+\newcommand{\ivect}[1]{{}^{I}\underline{#1}}   % inertial-frame vector, e.g. {}^I v
+
+% ── Divider page (used for the appendix section-break) ─────────────────────
+\newcommand{\dividerpage}[3]{%
+    \clearpage
+    \thispagestyle{empty}
+    \begin{center}
+        \vspace*{\fill}
+        {\Huge\bfseries #1\par}
+        \vspace{1cm}
+        {\Large #2\par}
+        \vspace{1.5cm}
+        {\normalsize #3\par}
+        \vspace*{\fill}
+    \end{center}
+    \clearpage
+}
+
+% ── Source code link ────────────────────────────────────────────────────────
+\newcommand{\repolink}{\url{https://github.com/PabloCoralDev/Astrodynamics-Project-3}}
+
+\title{EAS4510, Project \#3}
+\author{Pablo Coral}
+\date{\today}
+
+\begin{document}
+
+% ── Cover page ───────────────────────────────────────────────────────────
+\pagenumbering{roman}
+\begin{titlepage}
+    \centering
+    \vspace*{3cm}
+    {\LARGE\bfseries Apoapsis Dwell Orbit Design for USSPACECOM\par}
+    \vspace{0.5cm}
+    {\Large EAS4510, Project \#3\par}
+    \vspace{1.5cm}
+    {\Large Pablo F. Coral\par}
+    \vspace{0.5cm}
+    {\large \today\par}
+    \vspace{1cm}
+    {\normalsize GitHub: \repolink\par}
+    \vfill
+    \includegraphics[width=\textwidth]{honor_code.png}
+    \vspace*{1cm}
+\end{titlepage}
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{sections/task1}
+\input{sections/task2}
+\input{sections/task3}
+\clearpage
+\input{sections/references}
+
+\dividerpage{Appendices}{Python Source Code}{All code and sources found in: \repolink}
+\appendix
+\input{sections/appendix_code}
+
+\end{document}

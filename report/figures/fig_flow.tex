@@ -1,0 +1,31 @@
+% Function flow for main.py.
+\begin{tikzpicture}[
+    >=Latex, font=\small, node distance=0.5cm,
+    term/.style={circle, draw, thick, minimum size=1.0cm, inner sep=1pt, font=\footnotesize},
+    proc/.style={rectangle, draw, thick, minimum height=0.75cm, text width=4.4cm, align=center},
+    sub/.style={rectangle, draw, thick, dashed, minimum height=0.75cm, text width=2.6cm, align=center},
+    io/.style={font=\footnotesize, align=left},
+]
+    \node[term] (start) {start};
+    \node[proc, below=of start] (prop) {\texttt{propagate\_orbit}\\(loop over $\omega,\Omega$)};
+    \node[proc, below=of prop] (ecef) {\texttt{eci2ecef}};
+    \node[proc, below=of ecef] (ll) {\texttt{ecef2LonLat}};
+    \node[proc, below=of ll] (t12) {Tasks 1--2: 3D orbit and groundtrack plots};
+    \node[proc, below=of t12] (t3) {Task 3: hemisphere, crossing point, apoapsis $\Omega$};
+    \node[term, below=of t3] (end) {end};
+
+    \node[sub, right=2.6cm of prop] (kep) {\texttt{step\_kepler}\\(incremental)};
+    \node[sub, right=2.6cm of ecef] (dcm) {\texttt{dcmI2E}};
+
+    \foreach \a/\b in {start/prop, prop/ecef, ecef/ll, ll/t12, t12/t3, t3/end}
+        \draw[->, thick] (\a) -- (\b);
+    \draw[<->, thick, hwblue] (prop) -- node[above, io] {$(E_{j-1},\Delta t)$} node[below, io] {$E_j,\nu_j$} (kep);
+    \draw[<->, thick, hwblue] (ecef) -- node[above, io] {$(t_j,\Omega_e)$} node[below, io] {$\mathbf{T}_I^E$} (dcm);
+
+    % inputs (left) and outputs (right of the main column)
+    \node[io, left=0.3cm of prop] {$a,e,i,\omega,\Omega,T,\Delta t$};
+    \node[io, left=0.3cm of ecef] {$\vect{t},\mathbf{R}$};
+    \node[io, left=0.3cm of ll] {$\mathbf{R}_e$};
+    \node[io, hwred, right=0.3cm of prop] {$\vect{t},\vect{\nu},\mathbf{R},\mathbf{V}$};
+    \node[io, hwred, right=0.3cm of ll] {$\vect{\theta}_e,\,\vect{\phi}$};
+\end{tikzpicture}
