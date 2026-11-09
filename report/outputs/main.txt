@@ -9,27 +9,31 @@ Orbit design parameters (fixed for every case)
 	ra	= 52801.3501 km
 
 ======================================================================
-  Task 3: hemisphere dwell, crossing point, and apoapsis placement
+Task 3: hemisphere, crossing point, and apoapsis placement
 ======================================================================
 
 (w = 90 deg)
-	majority hemisphere	= Southern (65.40% of orbit)
+	points north / south	= 100 / 189  (of 289)
+	majority hemisphere	= Southern
+	crossing point nu1, nu2	= 139.3056, 220.6944 deg
 	crossing point lat	= -42.6834 deg
-	dwell time (short leg)	= 8.3100 hr
-	dwell time (long leg)	= 15.6900 hr
+	crossing -> apoapsis -> crossing	= 8.3100 hr  (Southern loop)
 	apoapsis latitude	= -63.4000 deg  (matches majority hemisphere: Southern)
+	apoapsis longitude (Omega = 0)	= 89.5072 deg
 
 (w = 270 deg)
-	majority hemisphere	= Northern (65.40% of orbit)
+	points north / south	= 189 / 100  (of 289)
+	majority hemisphere	= Northern
+	crossing point nu1, nu2	= 139.3056, 220.6944 deg
 	crossing point lat	= 42.6834 deg
-	dwell time (short leg)	= 8.3100 hr
-	dwell time (long leg)	= 15.6900 hr
+	crossing -> apoapsis -> crossing	= 8.3100 hr  (Northern loop)
 	apoapsis latitude	= 63.4000 deg  (matches majority hemisphere: Northern)
+	apoapsis longitude (Omega = 0)	= -90.4928 deg
 
-(w = 90 deg) Omega placing apoapsis over named locations:
-	Australia (~135 deg E)	-> Omega = 45.4928 deg
-	South America (~-60 deg E, Brazil)	-> Omega = 210.4928 deg
+(w = 90 deg) Omega to place apoapsis over:
+	Australia (~135 deg E)	-> Omega = 45.4928 deg, apoapsis longitude = 135.0000 deg
+	South America (~-60 deg E, Brazil)	-> Omega = 180.0000 deg, apoapsis longitude = -90.4928 deg
 
-(w = 270 deg) Omega placing apoapsis over named locations:
-	Russia (~90 deg E, central Siberia)	-> Omega = 180.4928 deg
-	North America (~-100 deg E)	-> Omega = 350.4928 deg
+(w = 270 deg) Omega to place apoapsis over:
+	Russia (~90 deg E, central Siberia)	-> Omega = 180.0000 deg, apoapsis longitude = 89.5072 deg
+	North America (~-100 deg E)	-> Omega = 0.0000 deg, apoapsis longitude = -90.4928 deg

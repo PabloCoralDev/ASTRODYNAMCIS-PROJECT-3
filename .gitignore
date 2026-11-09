@@ -9,3 +9,9 @@ report/*.out
 report/*.fls
 report/*.fdb_latexmk
 report/*.synctex.gz
+
+# Claude Code
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json

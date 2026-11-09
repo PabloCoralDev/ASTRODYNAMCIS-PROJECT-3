@@ -8,13 +8,22 @@
 \usepackage{graphicx}
 \graphicspath{{figures/}}
 \usepackage{subcaption}
-\captionsetup[figure]{labelfont=it}
+\captionsetup[figure]{labelfont=it,justification=centering}
 \usepackage{float}
 \usepackage{placeins}
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{siunitx}
 \usepackage{xcolor}
+% ── NEW-TEXT HIGHLIGHT ──────────────────────────────────────────────────────
+% red = NOT copied from a previous HW/project (copied text stays black).
+% blue = text Pablo provided, placed in the report verbatim.
+% Before submission change `red` and `blue` to `black` on the two \colorlet lines below -- that is the only change needed.
+\colorlet{newtext}{black}
+\colorlet{usertext}{black}
+\newcommand{\newtxt}[1]{{\color{newtext}#1}}   % inline: words, numbers, math, captions, cells
+\newenvironment{newpar}{\color{newtext}}{}   % whole new paragraphs / equations
+\newcommand{\usertxt}[1]{{\color{usertext}#1}}   % text provided by Pablo
 \usepackage{listings}
 \usepackage{microtype}
 \usepackage{hyperref}
@@ -27,8 +36,6 @@
 \usepackage{cleveref}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,shapes.geometric,positioning,calc,decorations.pathreplacing}
-\usepackage{pgfplots}
-\pgfplotsset{compat=1.18}
 
 % ── Code listing style ─────────────────────────────────────────────────────
 \definecolor{codebg}{RGB}{247,247,250}
@@ -99,7 +106,7 @@
 }
 
 % ── Source code link ────────────────────────────────────────────────────────
-\newcommand{\repolink}{\url{https://github.com/PabloCoralDev/Astrodynamics-Project-3}}
+\newcommand{\repolink}{\url{https://github.com/PabloCoralDev/ASTRODYNAMCIS-PROJECT-3}}
 
 \title{EAS4510, Project \#3}
 \author{Pablo Coral}
@@ -130,7 +137,9 @@
 \setcounter{page}{1}
 
 \input{sections/task1}
+\clearpage
 \input{sections/task2}
+\clearpage
 \input{sections/task3}
 \clearpage
 \input{sections/references}

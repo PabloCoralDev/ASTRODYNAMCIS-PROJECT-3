@@ -1,0 +1,23 @@
+% Redrawn from Project 2 Handwork p.4 (perifocal frame, r at true anomaly nu).
+% Ellipse: a = 2.5, e = 0.6, b = 2, focus at the origin, nu = 60 deg -> r = 1.2308.
+\begin{tikzpicture}[>=Latex, scale=1.15, font=\small]
+    % orbit
+    \draw[thick, hwblue] (-1.5,0) ellipse (2.5 and 2);
+    \fill (0,0) circle (1.6pt);
+    \node[below left] at (0,0) {$\vect{p}_z$ (out)};
+    % perifocal axes
+    \draw[->, thick] (0,0) -- (2.0,0) node[right] {$\vect{p}_x$ (to periapsis)};
+    \draw[->, thick] (0,0) -- (0,2.4) node[above] {$\vect{p}_y$};
+    % position vector and projections
+    \coordinate (S) at (0.6154,1.0659);
+    \draw[->, very thick, hwred] (0,0) -- (S) node[above right] {$\vect{r}$};
+    \draw[dashed, hwpurple] (S) -- (0.6154,0) node[below] {$r\cos\nu$};
+    \draw[dashed, hwpurple] (S) -- (0,1.0659) node[left] {$r\sin\nu$};
+    \fill[hwred] (S) circle (1.6pt);
+    % true anomaly
+    \draw[->, hwgreen] (0.55,0) arc (0:60:0.55);
+    \node[hwgreen] at (0.75,0.32) {$\nu$};
+    % periapsis / apoapsis
+    \fill (1,0) circle (1.2pt) node[below right] {$r_p$};
+    \fill (-4,0) circle (1.2pt) node[left] {$r_a$};
+\end{tikzpicture}

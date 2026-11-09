@@ -2,15 +2,15 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-# markers suggested in the assignment, one per Omega value
+# using suggested markers for plotting
 OMEGA_MARKERS = ['o', 's', 'd', 'v', '>']
 OMEGA_COLORS = ['tab:red', 'tab:orange', 'tab:green', 'tab:blue', 'tab:purple']
 
 
 def earthSphere(ax, R_e, image_path='earth.jpg', n=100):
     """
-    Plots an earth sphere textured with an equirectangular image of earth. (Python version of
-    earthSphere.m, same as Project 2.)
+    Plots an earth sphere textured with an equirectangular image of earth (Python version of
+    earthSphere.m.)
     """
     lon = np.linspace(-np.pi, np.pi, 2 * n)
     lat = np.linspace(np.pi / 2, -np.pi / 2, n)
@@ -36,9 +36,9 @@ def earthSphere(ax, R_e, image_path='earth.jpg', n=100):
 
 def plotOrbits3D(orbits_by_Omega, Omega_values, R_e, image_path, title, view_az=49.5, view_el=22.8):
     """
-    One 3D figure with the earth and one orbit trace per Omega value, color-coded and legended.
-
+    One 3D figure with the earth and one orbit trace per given Omega value.
     orbits_by_Omega -> dict {Omega_deg: r_arr (ECI, (n,3))}
+
     """
     fig = plt.figure(figsize=(9, 9))
     ax = fig.add_subplot(projection='3d')
@@ -61,9 +61,9 @@ def plotOrbits3D(orbits_by_Omega, Omega_values, R_e, image_path, title, view_az=
 
 def mercatorDisplay(groundtracks_by_Omega, Omega_values, title, image_path='earth.jpg'):
     """
-    Groundtrack figure on an equirectangular Earth image, one marker style per Omega value.
-
+    Groundtrack figure on an equirectangular Earth image with one marker style per Omega value.
     groundtracks_by_Omega -> dict {Omega_deg: (lon_arr_rad, lat_arr_rad)}
+
     """
     fig, ax = plt.subplots(figsize=(12, 6))
 

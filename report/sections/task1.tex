@@ -1,43 +1,24 @@
 \section{Task 1: Apoapsis Dwell Orbit in Inertial Space}
 \label{sec:task1}
 
-USSPACECOM has specified a design with
+\begin{newpar}
+USSPACECOM has specified an orbit with the following parameters:
 \begin{equation}
 T = \SI{24}{\hour}, \qquad e = 0.25, \qquad i = 63.4^\circ, \qquad \omega = \{90^\circ, 270^\circ\}, \qquad 0 \le \Omega \le 180^\circ,
+\label{eq:t1-given}
 \end{equation}
-with the spacecraft at periapsis at the epoch $t=t_0=0$. The semi-major axis follows directly from the given period,
+and with the spacecraft at periapsis at the epoch $t=t_0=0$. We can calculate the semi-major axis from the given period,
 \begin{equation}
 T = 2\pi\sqrt{\frac{a^3}{\mu}} \;\;\Longrightarrow\;\; a = \left(\frac{\mu T^2}{4\pi^2}\right)^{1/3},
 \end{equation}
-after which $p = a(1-e^2)$, $r_p = p/(1+e)$, and $r_a = p/(1-e)$ follow as usual (\cref{tab:t1-design}).
-
-\subsection*{Task 1-1: Incremental Kepler solver}
-
-The assignment forbids both \texttt{ode113} and the Project 2 time-of-flight root-finder, \texttt{rootFinder}, for this task. Instead, the orbit is propagated directly from Kepler's equation, stepping the eccentric anomaly $E$ forward one $\Delta t = \SI{5}{\minute}$ interval at a time. With mean motion $n=2\pi/T$, the mean anomaly advances linearly in time,
-\begin{equation}
-M_j = M_{j-1} + n\,\Delta t,
-\label{eq:t1-mean-anomaly}
-\end{equation}
-and $E_j$ is the root of Kepler's equation at that step,
-\begin{equation}
-f(E) = E - e\sin E - M_j = 0, \qquad f'(E) = 1 - e\cos E,
-\end{equation}
-solved with Newton's method,
-\begin{equation}
-\boxed{E^{(k+1)} = E^{(k)} - \frac{E^{(k)} - e\sin E^{(k)} - M_j}{1 - e\cos E^{(k)}}},
-\qquad E^{(0)} = E_{j-1} + n\,\Delta t.
-\label{eq:t1-newton}
-\end{equation}
-Seeding each step with the previous step's $E$ (rather than re-solving from $E_0$) makes the propagation genuinely incremental, as required, and the seed in \cref{eq:t1-newton} is already close to the root since $M$ only advances by $n\,\Delta t$ each step. The true anomaly follows from
-\begin{equation}
-\nu_j = 2\tan^{-1}\!\left(\sqrt{\frac{1+e}{1-e}}\tan\frac{E_j}{2}\right),
-\end{equation}
-evaluated with \texttt{numpy.arctan2} for the correct quadrant. \texttt{step\_kepler(E\_prev, e, n, dt)} implements \cref{eq:t1-mean-anomaly,eq:t1-newton}, and \texttt{propagate\_orbit} calls it once per 5-minute step over one full period, starting from periapsis ($E_0 = 0$).
+which we can use for $p = a(1-e^2)$, $r_p = p/(1+e)$, and $r_a = p/(1-e)$:
+\end{newpar}
 
 \begin{table}[H]
 \centering
-\caption{Fixed orbit design parameters.}
+\caption{\newtxt{Fixed orbit design parameters, $\mu = \SI{398600}{\kilo\meter\cubed\per\second\squared}$.}}
 \label{tab:t1-design}
+\color{newtext}
 \begin{tabular}{@{}lr@{\qquad}lr@{}}
 \toprule
 Quantity & Value & Quantity & Value \\
@@ -50,39 +31,139 @@ $T$ [\si{\hour}] & $24.0000$ & $\Delta t$ [\si{\minute}] & $5$ \\
 \end{tabular}
 \end{table}
 
-\subsection*{Task 1-2: Position at every $\Omega$}
+\subsection*{Task 1-1: Kepler solver}
 
-For each $(\omega,\Omega)$ pair, the sequence of true anomalies $\{\nu_j\}$ from the incremental solver is rotated into the ECI frame with the usual perifocal-to-inertial 3-1-3 (Z-X-Z) rotation,
+For an elliptic orbit ($0 \le e < 1$), the \newtxt{true anomaly} at an arbitrary time $t$ \newtxt{is} obtained from \newtxt{$\nu_0$}, $t_0$, $t$, and $\mu$ using the method of Section 3.5\newtxt{~\cite{course-notes}}:
+\begin{enumerate}
+    \item Solve for $E_0$ from $\nu_0$ using
+    \begin{equation}
+        E_0 = 2\tan^{-1}\!\left[\sqrt{1-e}\sin\!\left(\frac{\nu_0}{2}\right),\ \sqrt{1+e}\cos\!\left(\frac{\nu_0}{2}\right)\right].
+        \label{eq:t1-E0}
+    \end{equation}
+    \item Solve the general form of Kepler's equation for $E(t)$ to obtain C:
+    \begin{equation}
+        E - e\sin E = \sqrt{\frac{\mu}{a^3}}(t-t_0) - 2\pi k + \big(E_0 - e\sin E_0\big) \equiv C,
+        \label{eq:t1-kepler}
+    \end{equation}
+    using the fixed-point iteration
+    \begin{equation}
+        E^{(n+1)} = e\sin E^{(n)} + C,
+        \label{eq:t1-fpi}
+    \end{equation}
+    with the suggested initial guess:
+    \begin{equation}
+        E^{(0)} = M_0 = E_0 - e\sin E_0,
+    \end{equation}
+    and run for the suggested number of iterations,
+    \begin{equation}
+        N = 10\left\lceil \frac{1}{1-e} \right\rceil.
+    \end{equation}
+    The integer $k$ is the number of periapsis crossings between $t_0$ and $t$, obtained from
+    \begin{equation}
+        k = \left\lfloor \frac{M_0 + \sqrt{\mu/a^3}\,(t-t_0)}{2\pi} \right\rfloor.
+        \label{eq:t1-k}
+    \end{equation}
+    \item Recover the true anomaly at $t$ from the obtained $E$ (in step \newtxt{2}),
+    \begin{equation}
+        \nu = 2\tan^{-1}\!\left[\sqrt{1+e}\sin\!\left(\frac{E}{2}\right),\ \sqrt{1-e}\cos\!\left(\frac{E}{2}\right)\right].
+        \label{eq:t1-nu}
+    \end{equation}
+\end{enumerate}
+\newtxt{\texttt{step\_kepler(t\_prev, nu\_prev, t, a, e, mu)} in \texttt{kepler.py} implements these three steps.}
+
+\subsection*{Task 1-2: True anomaly at a sequence of times}
+
+\newtxt{The} time grid $\vect{t}$ is built and the true anomaly $\vect{N}$ is computed at each time. With $\Delta t = \SI{5}{\minute}$\newtxt{, $t_0 = 0$, $\nu_0 = 0$,} and $t_n = t_0 + \newtxt{T}$,
 \begin{equation}
-\vect{r}(\nu_j) = \mathbf{R}_z(\Omega)\,\mathbf{R}_x(i)\,\mathbf{R}_z(\omega)\,\vect{r}_{PCI}(\nu_j), \qquad
-\vect{r}_{PCI} = \frac{p}{1+e\cos\nu_j}\begin{bmatrix}\cos\nu_j\\ \sin\nu_j\\ 0\end{bmatrix},
+\vect{t} = \begin{bmatrix} t_0 & t_1 & \cdots & t_n \end{bmatrix}^T,\quad t_i = t_{i-1} + \Delta t
+\;\;\Longrightarrow\;\;
+n + 1 = 289 \text{ points}.
 \end{equation}
-done by \texttt{elements\_to\_rv} (identical in form to Project 2's \texttt{computeRandV}, applied here to a single $\nu$ at a time as each step is produced). The full pipeline is summarized in \cref{fig:t1-flow}.
+\texttt{computeNu(t\_arr, \newtxt{nu\_0, a, e,} miu)} sets $\nu_0$ as the first element of $\vect{N}$, and then calls \texttt{\newtxt{step\_kepler}} once per step with $(t_{i-1},\nu_{i-1},t_i)$ to get $\nu_i$ ($i = 1,\dots,n$).
+
+\subsection*{Task 1-3: Position and velocity}
+
+With $\vect{N}$ from \newtxt{Task 1-2} and the orbital elements $(a,e,\Omega,i,\omega)$, the ECI position and inertial velocity are computed at every $\nu_j$. Each pair is first written in the perifocal frame $P$ (\cref{fig:t1-perifocal}), then rotated to the ECI frame $I$.
 
 \begin{figure}[H]
 \centering
-\resizebox{0.95\textwidth}{!}{\input{figures/fig_flow.tex}}
-\caption{Function flow in \texttt{main.py}: incremental Kepler propagation, ECI $\to$ ECEF, groundtrack, and the Task 3 analysis.}
+\input{figures/fig_perifocal}
+\caption{Perifocal frame $P$ and the position at true anomaly $\nu$.}
+\label{fig:t1-perifocal}
+\end{figure}
+
+\subsubsection*{Perifocal position and velocity}
+With $p = a(1-e^2)$ and the orbit equation,
+\begin{equation}
+r(\nu) = \frac{p}{1+e\cos\nu},
+\qquad
+\vect{r}_P = \begin{bmatrix} r\cos\nu \\ r\sin\nu \\ 0 \end{bmatrix},
+\qquad
+\ivect{v}_P = \sqrt{\frac{\mu}{p}}\begin{bmatrix} -\sin\nu \\ e + \cos\nu \\ 0 \end{bmatrix}
+\;\;\text{(eqn.~2.54~\cite{course-notes})}.
+\label{eq:t1-perifocal}
+\end{equation}
+
+\subsubsection*{Perifocal to ECI}
+$P$ is reached from $I$ by a 3-1-3 rotation through $(\Omega, i, \omega)$, so
+\begin{equation}
+\vect{r} = \mathbf{R}_3(\Omega)\,\mathbf{R}_1(i)\,\mathbf{R}_3(\omega)\,\vect{r}_P,
+\qquad
+\ivect{v} = \mathbf{R}_3(\Omega)\,\mathbf{R}_1(i)\,\mathbf{R}_3(\omega)\,\ivect{v}_P,
+\label{eq:t1-rot}
+\end{equation}
+with
+\begin{equation}
+\mathbf{R}_3(\theta) = \begin{bmatrix} \cos\theta & -\sin\theta & 0 \\ \sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix},
+\qquad
+\mathbf{R}_1(\theta) = \begin{bmatrix} 1 & 0 & 0 \\ 0 & \cos\theta & -\sin\theta \\ 0 & \sin\theta & \cos\theta \end{bmatrix}.
+\end{equation}
+
+\subsubsection*{\newtxt{Output}}
+\texttt{computeRandV(nu\_arr, a, e, O, i, w, miu)} loops over the $n+1$ values of $\vect{N}$ and \newtxt{returns the results as the rows of}:
+\begin{equation}
+\mathbf{R} = \begin{bmatrix} \vect{r}^T(t_0) \\ \vect{r}^T(t_1) \\ \vdots \\ \vect{r}^T(t_n) \end{bmatrix},
+\qquad
+\mathbf{V} = \begin{bmatrix} \ivect{v}^T(t_0) \\ \ivect{v}^T(t_1) \\ \vdots \\ \ivect{v}^T(t_n) \end{bmatrix},
+\qquad
+\mathbf{R},\,\mathbf{V} \in \mathbb{R}^{(n+1)\times 3}.
+\end{equation}
+\newtxt{This is repeated for each of the ten $(\omega,\Omega)$ pairs, with the same $\vect{N}$.}
+
+\subsection*{Flowchart for Tasks 1 to 3}
+
+\Cref{fig:t1-flow} shows the order in which the functions of Tasks 1 to 3 are called from \texttt{\newtxt{tasks1to3.py}}, with their inputs (left) and outputs (right).
+
+\begin{figure}[H]
+\centering
+\scalebox{0.68}{\input{figures/fig_flow}}
+\caption{Program flow of \texttt{\newtxt{tasks1to3.py}}.}
 \label{fig:t1-flow}
 \end{figure}
+
+\subsection*{Task 1-4: Orbits in three dimensions}
+
+The three columns of $\mathbf{R}$ are plotted over an Earth sphere of radius $R_e = \SI{6378.1363}{\kilo\meter}$ (\texttt{earthSphere}, a Python version of \texttt{earthSphere.m} textured with a NASA equirectangular image~\cite{nasa-image}), with line width 2 and \texttt{view(49.5, 22.8)}\newtxt{, one color per value of $\Omega$, and one figure per value of $\omega$ (\cref{fig:t1-orbits})}. The Earth is drawn at $t = 0$, when $ECI$ and $ECEF$ are aligned.
 
 \begin{figure}[H]
 \centering
 \begin{subfigure}{0.49\textwidth}
 \includegraphics[width=\textwidth]{orbit3d_w90.png}
-\caption{$\omega = 90^\circ$}
+\caption{\newtxt{$\omega = 90^\circ$}}
 \end{subfigure}
 \hfill
 \begin{subfigure}{0.49\textwidth}
 \includegraphics[width=\textwidth]{orbit3d_w270.png}
-\caption{$\omega = 270^\circ$}
+\caption{\newtxt{$\omega = 270^\circ$}}
 \end{subfigure}
-\caption{Orbit in ECI inertial space for $\Omega = (0,45,90,135,180)^\circ$, one figure per value of $\omega$.}
+\caption{\newtxt{Orbit in the ECI frame over one period for $\Omega = (0,45,90,135,180)^\circ$.}}
 \label{fig:t1-orbits}
 \end{figure}
 
-For a fixed $\omega$, changing $\Omega$ rigidly rotates the entire orbit about the Earth's polar axis: every ellipse in \cref{fig:t1-orbits} has the same size, shape, and tilt relative to the equatorial plane, and the five curves differ only by where the line of nodes points. The structure of each orbit relative to the equator (how far north or south it reaches, where periapsis and apoapsis sit) is set entirely by $i$ and $\omega$, not $\Omega$.
+\subsubsection*{\newtxt{Structure of the orbit as a function of $\Omega$}}
+\newtxt{Changing $\Omega$ rotates the entire orbit 'rigidly' about $\vect{I}_z$. The size, shape, and inclination of the orbit, and the latitudes of periapsis and apoapsis, do not change.}
 
-The key difference between $\omega=90^\circ$ and $\omega=270^\circ$ is where apoapsis points in latitude. Since the argument of latitude at apoapsis is $u_a = \omega + 180^\circ$, apoapsis sits at $u_a = 270^\circ$ for $\omega=90^\circ$ (the southernmost point of the orbit) and at $u_a = 90^\circ$ for $\omega=270^\circ$ (the northernmost point). The two cases are mirror images of each other across the equatorial plane: the $\omega=90^\circ$ orbit dwells over the Southern hemisphere at apoapsis, while the $\omega=270^\circ$ orbit dwells over the Northern hemisphere at apoapsis -- this is the "apoapsis dwell" behavior USSPACECOM is designing for, and \cref{sec:task3} shows it is not just qualitative: the spacecraft spends the majority of each period on the apoapsis side of its orbit.
+\subsubsection*{\newtxt{Key difference between $\omega = 90^\circ$ and $\omega = 270^\circ$}}
+\newtxt{For $\omega = 90^\circ$,} apoapsis ($\nu = 180^\circ$) lies \newtxt{$\omega + 180^\circ = 270^\circ$} past the ascending node, at the orbit's most \newtxt{southern} point, so the spacecraft is highest and slowest where it is farthest \newtxt{south}. \newtxt{For $\omega = 270^\circ$, apoapsis} lies $90^\circ$ past the ascending node, at the orbit's most northern point, so the spacecraft is highest and slowest where it is farthest north\newtxt{. Each orbit therefore dwells over one hemisphere.}
 
 \FloatBarrier

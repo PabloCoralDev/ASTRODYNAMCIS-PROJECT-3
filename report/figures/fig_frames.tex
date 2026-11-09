@@ -1,0 +1,19 @@
+% Redrawn from Project 2 Handwork p.5 / assignment Fig. 1 (ECI and ECEF bases, eta = Omega_e t).
+\begin{tikzpicture}[>=Latex, scale=1.0, font=\small]
+    \def\ang{30}
+    % ECI basis
+    \draw[->, thick, hwblue] (0,0) -- (3.2,0) node[right] {$\vect{I}_x$};
+    \draw[->, thick, hwblue] (0,0) -- (0,3.2) node[above] {$\vect{I}_y$};
+    % ECEF basis
+    \draw[->, thick, hwred] (0,0) -- (\ang:3.0) node[right] {$\vect{e}_x$};
+    \draw[->, thick, hwred] (0,0) -- (90+\ang:3.0) node[left] {$\vect{e}_y$};
+    % common z axis (out of page)
+    \draw[thick] (0,0) circle (0.12);
+    \fill (0,0) circle (0.04);
+    \node[below left] at (0,0) {$\vect{e}_z,\vect{I}_z$};
+    % rotation angles
+    \draw[->, hwgreen] (1.6,0) arc (0:\ang:1.6);
+    \node[hwgreen] at (15:2.0) {$\Omega_e t$};
+    \draw[->, hwgreen] (0,1.6) arc (90:90+\ang:1.6);
+    \node[hwgreen] at (105:2.0) {$\Omega_e t$};
+\end{tikzpicture}
